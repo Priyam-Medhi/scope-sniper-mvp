@@ -1,26 +1,102 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a1a;
+  --foreground: #e2e8f0;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-serif: "Georgia", "Cambria", "Times New Roman", Times, serif;
+  --font-mono: "Cascadia Code", "Fira Code", ui-monospace, monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* ─── PDF Proposal Document ─────────────────────────────────── */
+.proposal-document {
+  line-height: 1.5;
+}
+
+.proposal-document.theme-modern {
+  font-family: var(--font-sans), "Segoe UI", Arial, sans-serif;
+  color: #1e293b;
+}
+
+.proposal-document.theme-swiss {
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  color: #000000;
+}
+
+.proposal-document.theme-executive {
+  font-family: var(--font-serif), Georgia, "Times New Roman", serif;
+  color: #0f172a;
+}
+
+/* ─── Print / PDF Export Rules ──────────────────────────────── */
+@media print {
+  /* Hide everything except the proposal */
+  body > * {
+    visibility: hidden;
+  }
+
+  #proposal-document,
+  #proposal-document * {
+    visibility: visible !important;
+  }
+
+  #proposal-document {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    padding: 15mm 18mm !important;
+    margin: 0 !important;
+    background: white !important;
+    color: #1e293b !important;
+    font-size: 11pt !important;
+  }
+
+  /* Zero-margin page */
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  /* Prevent fracturing across pages */
+  .break-inside-avoid,
+  .proposal-document table,
+  .proposal-document thead,
+  .proposal-document tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Each SOW phase card */
+  .proposal-document .border {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Signature block always starts together */
+  .proposal-document .border-t-2 {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Table header stays with first row */
+  .proposal-document thead {
+    display: table-header-group;
+  }
+
+  /* Remove shadows and unnecessary styling for print */
+  .proposal-document * {
+    box-shadow: none !important;
+  }
 }
