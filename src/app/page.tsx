@@ -23,7 +23,7 @@ type LeftTab = "input" | "tweak";
 export default function HomePage() {
   // ── State ──────────────────────────────────────────────────────────
   const [transcript, setTranscript] = useState("");
-  const [rateCard, setRateCard] = useState(DEFAULT_RATE_CARD);
+  const [rateCard, setRateCard] = useState("");
   const [taxRate, setTaxRate] = useState(0);
   const [proposal, setProposal] = useState<EnrichedProposal | null>(null);
   const [loading, setLoading] = useState(false);
