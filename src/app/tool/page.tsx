@@ -1,40 +1,175 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Link from "next/link";
 import {
-  FileText,
+  ArrowLeft,
+  FileEdit,
+  BadgeCheck,
+  Moon,
+  Sun,
+  RotateCcw,
+  Sliders,
+  FileSpreadsheet,
+  Mic,
   Sparkles,
-  Settings2,
-  Download,
   Loader2,
-  ClipboardPaste,
+  ListOrdered,
+  Trash2,
+  Plus,
+  ShieldAlert,
+  FileText,
+  Download,
   AlertCircle,
-  Palette,
 } from "lucide-react";
 import ProposalPreview from "@/components/ProposalPreview";
-import TweakPanel from "@/components/TweakPanel";
 import { recomputeTotals } from "@/lib/math";
-import { SAMPLE_TRANSCRIPT, DEFAULT_RATE_CARD } from "@/lib/sample-data";
+import {
+  DEFAULT_PROPOSAL,
+  SAMPLE_ACME_RATE_CARD,
+  SAMPLE_ACME_TRANSCRIPT,
+} from "@/lib/sample-data";
 import { PROPOSAL_THEMES, type ProposalTheme } from "@/types/themes";
-import type { EnrichedProposal } from "@/types/proposal";
-
-type LeftTab = "input" | "tweak";
+import type { EnrichedProposal, EnrichedLineItem } from "@/types/proposal";
 
 export default function ToolPage() {
   // ── State ──────────────────────────────────────────────────────────
-  const [transcript, setTranscript] = useState("");
-  const [rateCard, setRateCard] = useState("");
-  const [taxRate, setTaxRate] = useState(0);
-  const [proposal, setProposal] = useState<EnrichedProposal | null>(null);
+  const [proposal, setProposal] = useState<EnrichedProposal | null>(DEFAULT_PROPOSAL);
+  const [transcript, setTranscript] = useState(SAMPLE_ACME_TRANSCRIPT);
+  const [rateCard, setRateCard] = useState(SAMPLE_ACME_RATE_CARD);
+  const [taxRate, setTaxRate] = useState(8.5);
+  const [currency, setCurrency] = useState("USD");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [leftTab, setLeftTab] = useState<LeftTab>("input");
-  const [theme, setTheme] = useState<ProposalTheme>("Modern Tech SaaS (Indigo/Slate)");
+  const [theme, setTheme] = useState<ProposalTheme>("Minimalist Swiss (Black & White)");
+  const [darkPreview, setDarkPreview] = useState(false);
+  const [zoom, setZoom] = useState<number>(1.0);
+  const [newExclusionInput, setNewExclusionInput] = useState("");
 
-  // ── Generate proposal via API ─────────────────────────────────────
+  // Currency symbol resolution
+  const currencySymbol =
+    currency === "EUR" ? "€" : currency === "GBP" ? "£" : "$";
+
+  // ── Project Title Sync ────────────────────────────────────────────
+  const handleProjectTitleChange = (newTitle: string) => {
+    if (!proposal) return;
+    setProposal({
+      ...proposal,
+      projectTitle: newTitle,
+    });
+  };
+
+  // ── Recalculate deterministic totals ──────────────────────────────
+  const updateProposalData = useCallback(
+    (updated: EnrichedProposal) => {
+      const enriched = recomputeTotals({
+        ...updated,
+        taxRate,
+        currencySymbol,
+      });
+      setProposal(enriched);
+    },
+    [taxRate, currencySymbol]
+  );
+
+  // ── Line Items Handlers ───────────────────────────────────────────
+  const updateLineItem = (index: number, updates: Partial<EnrichedLineItem>) => {
+    if (!proposal) return;
+    const items = proposal.lineItems.map((item, i) =>
+      i === index ? { ...item, ...updates } : item
+    );
+    updateProposalData({ ...proposal, lineItems: items });
+  };
+
+  const removeLineItem = (index: number) => {
+    if (!proposal) return;
+    if (proposal.lineItems.length <= 1) {
+      alert("Proposals must contain at least one billable scope item.");
+      return;
+    }
+    const items = proposal.lineItems.filter((_, i) => i !== index);
+    updateProposalData({ ...proposal, lineItems: items });
+  };
+
+  const addLineItem = () => {
+    if (!proposal) return;
+    const newItem: EnrichedLineItem = {
+      itemTitle: "New Contract Deliverable",
+      category: "Development",
+      description: "Custom project requirement",
+      quantity: 10,
+      unitType: "hours",
+      unitPrice: 125,
+      lineTotal: 1250,
+    };
+    updateProposalData({
+      ...proposal,
+      lineItems: [...proposal.lineItems, newItem],
+    });
+  };
+
+  // ── Tax Rate & Currency Handlers ──────────────────────────────────
+  const handleTaxRateChange = (newRate: number) => {
+    setTaxRate(newRate);
+    if (!proposal) return;
+    updateProposalData({ ...proposal, taxRate: newRate });
+  };
+
+  const handleCurrencyChange = (newCurrency: string) => {
+    setCurrency(newCurrency);
+    const sym = newCurrency === "EUR" ? "€" : newCurrency === "GBP" ? "£" : "$";
+    if (!proposal) return;
+    setProposal({
+      ...proposal,
+      currencySymbol: sym,
+    });
+  };
+
+  // ── Exclusion Tags Handlers ───────────────────────────────────────
+  const getExclusionsList = (): string[] => {
+    if (proposal?.customExclusions && proposal.customExclusions.length > 0) {
+      return proposal.customExclusions;
+    }
+    if (proposal?.scopePhases) {
+      return proposal.scopePhases.flatMap((p) => p.outOfScope).filter(Boolean);
+    }
+    return [
+      "Native iOS & Android Mobile Apps",
+      "Custom AI Recommendation Model",
+      "Unmetered Post-Launch Maintenance",
+    ];
+  };
+
+  const removeExclusionTag = (index: number) => {
+    if (!proposal) return;
+    const current = getExclusionsList();
+    const updated = current.filter((_, i) => i !== index);
+    setProposal({
+      ...proposal,
+      customExclusions: updated,
+    });
+  };
+
+  const addExclusionTag = () => {
+    const val = newExclusionInput.trim();
+    if (!val || !proposal) return;
+    const current = getExclusionsList();
+    const updated = [...current, val];
+    setProposal({
+      ...proposal,
+      customExclusions: updated,
+    });
+    setNewExclusionInput("");
+  };
+
+  // ── Generate Proposal via Gemini API ──────────────────────────────
   const generate = useCallback(async () => {
     if (!transcript.trim()) {
       setError("Please paste a sales call transcript first.");
+      return;
+    }
+    if (!rateCard.trim()) {
+      setError("Please provide your agency rate card.");
       return;
     }
     setLoading(true);
@@ -50,230 +185,526 @@ export default function ToolPage() {
         throw new Error(data.error || `Server error ${res.status}`);
       }
       const data: EnrichedProposal = await res.json();
+      data.currencySymbol = currencySymbol;
       setProposal(data);
-      setLeftTab("tweak");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Generation failed.");
     } finally {
       setLoading(false);
     }
-  }, [transcript, rateCard, taxRate]);
+  }, [transcript, rateCard, taxRate, currencySymbol]);
 
-  // ── Tweak handler (recomputes math) ───────────────────────────────
-  const handleTweak = useCallback((updated: EnrichedProposal) => {
-    setProposal(recomputeTotals(updated));
-  }, []);
+  // ── Load Sample Rates & Transcript ────────────────────────────────
+  const loadSampleRates = () => {
+    setRateCard(SAMPLE_ACME_RATE_CARD);
+  };
 
-  // ── PDF Export ────────────────────────────────────────────────────
-  const exportPDF = useCallback(() => {
+  const loadSampleTranscript = () => {
+    setTranscript(SAMPLE_ACME_TRANSCRIPT);
+  };
+
+  // ── Reset Workspace ───────────────────────────────────────────────
+  const resetWorkspace = () => {
+    if (window.confirm("Reset workspace line items and inputs to initial defaults?")) {
+      setProposal(DEFAULT_PROPOSAL);
+      setTranscript(SAMPLE_ACME_TRANSCRIPT);
+      setRateCard(SAMPLE_ACME_RATE_CARD);
+      setTaxRate(8.5);
+      setCurrency("USD");
+      setTheme("Minimalist Swiss (Black & White)");
+      setDarkPreview(false);
+      setZoom(1.0);
+    }
+  };
+
+  // ── PDF Print Export ──────────────────────────────────────────────
+  const exportPDF = () => {
     window.print();
-  }, []);
+  };
 
-  // ── Load sample ───────────────────────────────────────────────────
-  const loadSample = useCallback(() => {
-    setTranscript(SAMPLE_TRANSCRIPT);
-    setRateCard(DEFAULT_RATE_CARD);
-    setTaxRate(8);
-  }, []);
-
-  // ── Render ────────────────────────────────────────────────────────
+  // Document file name
+  const safeDocName = (proposal?.projectTitle || "Acme_Corp")
+    .replace(/[^a-zA-Z0-9]/g, "_")
+    .substring(0, 24);
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col bg-slate-950 text-slate-100 print:bg-white print:text-black print:h-auto">
-      {/* ── Top Bar ──────────────────────────────────────────────── */}
-      <header className="shrink-0 h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-5 print:hidden">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
-            <FileText size={16} className="text-white" />
-          </div>
-          <div>
-            <h1 className="text-sm font-bold tracking-tight text-white">ScopeLock AI</h1>
-            <p className="text-[10px] text-slate-400 -mt-0.5">Transcript → Exact-Layout Proposal</p>
+    <div className="flex-1 flex flex-col bg-slate-50 text-slate-900 print:bg-white print:text-black">
+      {/* ── Top Workspace Utility Bar ──────────────────────────────── */}
+      <div className="w-full bg-white border-b border-slate-200 px-4 md:px-6 py-2 flex flex-wrap items-center justify-between gap-3 shadow-xs z-20 print:hidden">
+        {/* Left: Back Link & Title */}
+        <div className="flex items-center gap-3 shrink-0 min-w-0">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-blue-600 transition-colors py-1"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Home</span>
+          </Link>
+
+          <span className="text-slate-300 font-mono">/</span>
+
+          <div className="relative flex items-center">
+            <FileEdit className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
+            <input
+              type="text"
+              value={proposal?.projectTitle || ""}
+              onChange={(e) => handleProjectTitleChange(e.target.value)}
+              placeholder="Click to edit project title..."
+              title="Click to edit project title"
+              className="text-xs font-semibold text-slate-800 bg-slate-100 hover:bg-slate-200/70 focus:bg-white px-2.5 pl-8 py-1 rounded-md transition-all outline-none focus:ring-1 focus:ring-blue-500 w-64 md:w-96 truncate"
+            />
           </div>
         </div>
 
+        {/* Center: Segmented Theme Control */}
         <div className="flex items-center gap-2">
-          {proposal && (
-            <button
-              onClick={exportPDF}
-              className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3.5 py-1.5 rounded-lg transition-colors cursor-pointer"
-            >
-              <Download size={13} />
-              Export Exact-Layout PDF
-            </button>
-          )}
+          <div className="bg-slate-100 p-0.5 rounded-full flex items-center shadow-inner border border-slate-200">
+            {PROPOSAL_THEMES.map((t) => {
+              const isActive = theme === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setTheme(t.id)}
+                  className={`px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide transition-all flex items-center gap-1.5 cursor-pointer ${
+                    isActive
+                      ? "bg-white text-blue-600 shadow-xs font-bold"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full inline-block ${
+                      isActive ? "bg-blue-600" : "bg-transparent"
+                    }`}
+                  />
+                  <span>{t.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </header>
 
-      {/* ── Split Pane ───────────────────────────────────────────── */}
-      <div className="flex-1 flex overflow-hidden print:block">
-        {/* ── LEFT PANE ──────────────────────────────────────────── */}
-        <div className="w-110 shrink-0 border-r border-slate-800 flex flex-col bg-slate-900/60 print:hidden">
-          {/* Tab Bar */}
-          <div className="flex border-b border-slate-800">
-            <button
-              onClick={() => setLeftTab("input")}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors cursor-pointer ${
-                leftTab === "input"
-                  ? "text-indigo-400 border-b-2 border-indigo-500 bg-slate-800/30"
-                  : "text-slate-400 hover:text-slate-300"
-              }`}
-            >
-              <ClipboardPaste size={13} />
-              Transcript & Rate Card
-            </button>
-            <button
-              onClick={() => setLeftTab("tweak")}
-              disabled={!proposal}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors cursor-pointer ${
-                leftTab === "tweak"
-                  ? "text-indigo-400 border-b-2 border-indigo-500 bg-slate-800/30"
-                  : "text-slate-400 hover:text-slate-300"
-              } ${!proposal ? "opacity-40 cursor-not-allowed" : ""}`}
-            >
-              <Settings2 size={13} />
-              Quick-Tweak Data
-            </button>
+        {/* Right: Controls & Badges */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-mono text-[11px] font-semibold border border-emerald-200">
+            <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Math Verified</span>
           </div>
 
-          {/* Tab Content */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {leftTab === "input" && (
+          <button
+            type="button"
+            onClick={() => setDarkPreview(!darkPreview)}
+            title="Toggle Dark Preview Canvas"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition-all cursor-pointer border border-slate-200"
+          >
+            {darkPreview ? (
               <>
-                {/* Transcript */}
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-semibold text-slate-300">Sales Call Transcript</label>
-                    <button
-                      onClick={loadSample}
-                      className="text-[11px] text-indigo-400 hover:text-indigo-300 font-medium cursor-pointer"
-                    >
-                      Load Sample Discovery Call
-                    </button>
-                  </div>
-                  <textarea
-                    className="w-full h-56 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder:text-slate-500 resize-y focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
-                    placeholder="Paste your sales call transcript here…"
-                    value={transcript}
-                    onChange={(e) => setTranscript(e.target.value)}
-                  />
-                </div>
+                <Sun className="w-3.5 h-3.5 text-amber-500" />
+                <span>Light Preview</span>
+              </>
+            ) : (
+              <>
+                <Moon className="w-3.5 h-3.5 text-slate-600" />
+                <span>Dark Preview</span>
+              </>
+            )}
+          </button>
 
-                {/* Rate Card */}
-                <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1.5">
-                    Company Rate Card / Pricing Matrix
-                  </label>
-                  <textarea
-                    className="w-full h-40 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 font-mono placeholder:text-slate-500 resize-y focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
-                    value={rateCard}
-                    onChange={(e) => setRateCard(e.target.value)}
-                  />
-                </div>
+          <button
+            type="button"
+            onClick={resetWorkspace}
+            title="Reset workspace inputs to initial defaults"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition-colors cursor-pointer border border-slate-200"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-slate-600" />
+            <span>Reset</span>
+          </button>
+        </div>
+      </div>
 
-                {/* Tax Rate */}
-                <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1.5">
-                    Tax Rate (%)
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={100}
-                    step={0.1}
-                    className="w-28 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
-                    value={taxRate}
-                    onChange={(e) => setTaxRate(Number(e.target.value) || 0)}
-                  />
-                </div>
+      {/* ── Main Split-Screen Workspace Container ─────────────────── */}
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden print:block">
+        {/* ── LEFT PANE: Configuration & Line Controls (Fixed ~460px) ── */}
+        <aside className="w-full lg:w-[460px] shrink-0 bg-white border-r border-slate-200 flex flex-col h-full overflow-hidden print:hidden">
+          {/* Subheader */}
+          <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-white shrink-0">
+            <div>
+              <h2 className="text-xs font-bold text-slate-900 flex items-center gap-1.5 uppercase tracking-wide">
+                <Sliders className="w-4 h-4 text-blue-600" />
+                Proposal Configuration
+              </h2>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                Paste discovery notes to lock contract boundary &amp; prevent creep.
+              </p>
+            </div>
+            <span className="font-mono text-[10px] px-2 py-0.5 bg-blue-100 text-blue-800 font-bold uppercase rounded">
+              v2.4 Core
+            </span>
+          </div>
 
-                {/* Error */}
-                {error && (
-                  <div className="flex items-start gap-2 bg-red-900/30 border border-red-800/50 rounded-lg p-3 text-xs text-red-300">
-                    <AlertCircle size={14} className="shrink-0 mt-0.5" />
-                    <span>{error}</span>
-                  </div>
-                )}
-
-                {/* Generate Button */}
+          {/* Scrollable Control Area */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {/* Section 1: Agency Rate Card */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-blue-600" />
+                  Agency Rate Card
+                </label>
                 <button
-                  onClick={generate}
-                  disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/50 disabled:cursor-not-allowed text-white text-sm font-semibold py-2.5 rounded-lg transition-colors cursor-pointer"
+                  type="button"
+                  onClick={loadSampleRates}
+                  className="font-mono text-[11px] text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 hover:underline cursor-pointer"
                 >
+                  Load Sample Rates
+                </button>
+              </div>
+              <textarea
+                value={rateCard}
+                onChange={(e) => setRateCard(e.target.value)}
+                placeholder="Senior Full-Stack Engineering: $125/hr&#10;UI/UX Design System: $95/hr..."
+                rows={4}
+                className="w-full p-2.5 font-mono text-xs text-slate-800 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none leading-relaxed"
+              />
+            </div>
+
+            {/* Section 2: Discovery Call Transcript */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <Mic className="w-3.5 h-3.5 text-blue-600" />
+                  Discovery Call Transcript
+                </label>
+                <button
+                  type="button"
+                  onClick={loadSampleTranscript}
+                  className="font-mono text-[11px] text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 hover:underline cursor-pointer"
+                >
+                  Sample Transcript
+                </button>
+              </div>
+              <textarea
+                value={transcript}
+                onChange={(e) => setTranscript(e.target.value)}
+                placeholder="Paste Zoom/Google Meet call transcript here..."
+                rows={5}
+                className="w-full p-2.5 text-xs text-slate-800 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none leading-relaxed"
+              />
+            </div>
+
+            {/* Primary Generation Button */}
+            <div>
+              <button
+                type="button"
+                onClick={generate}
+                disabled={loading}
+                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all shadow-md hover:shadow-lg flex flex-col items-center justify-center gap-0.5 active:scale-[0.99] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <span className="inline-flex items-center gap-1.5">
                   {loading ? (
                     <>
-                      <Loader2 size={15} className="animate-spin" />
-                      Generating Proposal…
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Analyzing Transcript &amp; Locking Scope...
                     </>
                   ) : (
                     <>
-                      <Sparkles size={15} />
-                      Generate Proposal
+                      <Sparkles className="w-4 h-4 text-amber-300" />
+                      Generate Scope-Locked Proposal
                     </>
                   )}
+                </span>
+                <span className="font-mono text-[10px] opacity-90 font-normal">
+                  Calculates deterministic totals &amp; flags out-of-scope risks
+                </span>
+              </button>
+            </div>
+
+            {/* Error Alert */}
+            {error && (
+              <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-md p-2.5 text-xs text-red-700">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* Section 3: Line Item Scope Controls (Live Tweak) */}
+            {proposal && (
+              <div className="border-t border-slate-200 pt-4 space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <ListOrdered className="w-4 h-4 text-blue-600" />
+                    Line Item Scope Controls
+                  </h3>
+                  <span className="font-mono text-[11px] text-slate-500">
+                    {proposal.lineItems.length} Items locked
+                  </span>
+                </div>
+
+                {/* Line Items List */}
+                <div className="space-y-2">
+                  {proposal.lineItems.map((item, index) => (
+                    <div
+                      key={index}
+                      className="p-2.5 bg-slate-50 rounded-md border border-slate-200 flex flex-col gap-1.5 hover:border-blue-300 transition-colors"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <input
+                          type="text"
+                          value={item.itemTitle}
+                          onChange={(e) =>
+                            updateLineItem(index, { itemTitle: e.target.value })
+                          }
+                          className="text-xs font-semibold text-slate-900 bg-transparent border-0 outline-none flex-1 focus:bg-white px-1 py-0.5 rounded"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeLineItem(index)}
+                          title="Remove line item"
+                          className="text-slate-400 hover:text-red-600 transition-colors p-1 cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between font-mono text-xs text-slate-600 gap-2">
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="number"
+                            min="1"
+                            value={item.quantity}
+                            onChange={(e) =>
+                              updateLineItem(index, {
+                                quantity: Number(e.target.value) || 0,
+                              })
+                            }
+                            className="w-12 bg-white border border-slate-200 rounded px-1 py-0.5 text-center font-mono text-xs outline-none focus:border-blue-500"
+                          />
+                          <span>{item.unitType === "hours" ? "hrs @" : "units @"}</span>
+                          <span>{currencySymbol}</span>
+                          <input
+                            type="number"
+                            min="1"
+                            value={item.unitPrice}
+                            onChange={(e) =>
+                              updateLineItem(index, {
+                                unitPrice: Number(e.target.value) || 0,
+                              })
+                            }
+                            className="w-14 bg-white border border-slate-200 rounded px-1 py-0.5 text-center font-mono text-xs outline-none focus:border-blue-500"
+                          />
+                          <span>/{item.unitType === "hours" ? "hr" : "unit"}</span>
+                        </div>
+                        <div className="font-mono font-bold text-slate-900">
+                          {currencySymbol}
+                          {(item.lineTotal || 0).toLocaleString("en-US", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Add Line Item Button */}
+                <button
+                  type="button"
+                  onClick={addLineItem}
+                  className="w-full py-1.5 border border-dashed border-blue-400 text-blue-600 hover:bg-blue-50 text-xs font-medium rounded-md flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Line Item</span>
                 </button>
-              </>
-            )}
 
-            {leftTab === "tweak" && proposal && (
-              <TweakPanel proposal={proposal} onChange={handleTweak} />
-            )}
+                {/* Tax & Currency Settings */}
+                <div className="p-3 bg-slate-50 rounded-md border border-slate-200 space-y-2">
+                  <span className="font-mono text-[10px] text-slate-700 font-bold uppercase tracking-wider block">
+                    Tax &amp; Currency Settings
+                  </span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[11px] text-slate-600 block mb-1">
+                        State Tax Rate (%)
+                      </label>
+                      <div className="relative flex items-center">
+                        <input
+                          type="number"
+                          min="0"
+                          max="30"
+                          step="0.1"
+                          value={taxRate}
+                          onChange={(e) =>
+                            handleTaxRateChange(Number(e.target.value) || 0)
+                          }
+                          className="w-full font-mono text-xs bg-white border border-slate-200 rounded px-2 py-1 pr-6 outline-none focus:border-blue-500"
+                        />
+                        <span className="absolute right-2 font-mono text-slate-400 text-[11px] pointer-events-none">
+                          %
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-slate-600 block mb-1">
+                        Currency
+                      </label>
+                      <select
+                        value={currency}
+                        onChange={(e) => handleCurrencyChange(e.target.value)}
+                        className="w-full font-mono text-xs bg-white border border-slate-200 rounded px-2 py-1 outline-none focus:border-blue-500"
+                      >
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                        <option value="CAD">CAD ($)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
 
-            {leftTab === "tweak" && !proposal && (
-              <div className="flex items-center justify-center h-40 text-slate-500 text-xs">
-                Generate a proposal first to tweak the data.
+                {/* Out-of-Scope Exclusions (Guardrails) */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <ShieldAlert className="w-3.5 h-3.5 text-red-600" />
+                      Out-of-Scope Exclusions (Guardrails)
+                    </label>
+                    <span className="font-mono text-[10px] text-red-700 font-bold tracking-wider uppercase bg-red-100 px-1.5 py-0.5 rounded">
+                      Prevents Creep
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5">
+                    {getExclusionsList().map((item, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-50 text-red-800 font-mono text-[11px] font-medium border border-red-200"
+                      >
+                        <span>❌ {item.replace(/^❌\s*/, "")}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeExclusionTag(idx)}
+                          className="hover:opacity-70 text-[13px] leading-none ml-1 cursor-pointer font-bold"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Add Exclusion Tag Input */}
+                  <div className="flex items-center gap-1.5 pt-1">
+                    <input
+                      type="text"
+                      value={newExclusionInput}
+                      onChange={(e) => setNewExclusionInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addExclusionTag();
+                        }
+                      }}
+                      placeholder="+ Add custom exclusion boundary..."
+                      className="flex-1 bg-slate-50 border border-slate-200 rounded px-2.5 py-1 text-xs outline-none focus:border-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={addExclusionTag}
+                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-medium rounded transition-colors cursor-pointer border border-slate-200"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
-        </div>
+        </aside>
 
-        {/* ── RIGHT PANE (PDF Preview & Theme Switcher) ──────────── */}
-        <div className="flex-1 overflow-y-auto bg-slate-950 print:bg-white print:overflow-visible flex flex-col">
-          {/* Theme Switcher Toggle Bar (sticky above PDF preview) */}
-          <div className="shrink-0 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 print:hidden sticky top-0 z-10">
+        {/* ── RIGHT PANE: Live Interactive PDF Preview ─────────────── */}
+        <section
+          className={`flex-1 p-4 md:p-6 overflow-y-auto flex flex-col items-center transition-colors duration-200 print:bg-white print:p-0 ${
+            darkPreview ? "bg-slate-950" : "bg-slate-100"
+          }`}
+        >
+          {/* Top Preview Action Toolbar */}
+          <div className="w-full max-w-[780px] mb-4 flex flex-wrap items-center justify-between gap-3 bg-white px-4 py-2.5 rounded-lg border border-slate-200 shadow-xs print:hidden">
             <div className="flex items-center gap-2">
-              <Palette size={15} className="text-indigo-400" />
-              <span className="text-xs font-semibold text-slate-300">Proposal Theme:</span>
+              <FileText className="w-5 h-5 text-blue-600" />
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-slate-900">
+                  Proposal_{safeDocName}_v1.pdf
+                </span>
+                <div className="flex items-center gap-1.5 font-mono text-[10px] text-slate-500">
+                  <span>A4 Document</span>
+                  <span>•</span>
+                  <span>Theme: {theme}</span>
+                </div>
+              </div>
             </div>
 
-            <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-lg border border-slate-800">
-              {PROPOSAL_THEMES.map((t) => {
-                const isActive = theme === t.id;
-                return (
-                  <button
-                    key={t.id}
-                    onClick={() => setTheme(t.id)}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer ${
-                      isActive
-                        ? "bg-slate-800 text-white shadow-sm ring-1 ring-slate-700 font-semibold"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
-                    }`}
-                    title={t.description}
-                  >
-                    <span
-                      className={`w-2 h-2 rounded-full ${
-                        t.id === "Minimalist Swiss (Black & White)"
-                          ? "bg-white ring-1 ring-black"
-                          : t.id === "Modern Tech SaaS (Indigo/Slate)"
-                          ? "bg-indigo-500"
-                          : "bg-blue-300 ring-1 ring-blue-900"
-                      }`}
-                    />
-                    <span>{t.id}</span>
-                  </button>
-                );
-              })}
+            {/* Zoom Control Chips */}
+            <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded border border-slate-200">
+              <button
+                type="button"
+                onClick={() => setZoom(0.85)}
+                className={`px-2 py-0.5 rounded font-mono text-xs transition-colors cursor-pointer ${
+                  zoom === 0.85
+                    ? "bg-white text-blue-600 font-bold shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                85%
+              </button>
+              <button
+                type="button"
+                onClick={() => setZoom(1.0)}
+                className={`px-2 py-0.5 rounded font-mono text-xs transition-colors cursor-pointer ${
+                  zoom === 1.0
+                    ? "bg-white text-blue-600 font-bold shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                100%
+              </button>
+              <button
+                type="button"
+                onClick={() => setZoom(1.15)}
+                className={`px-2 py-0.5 rounded font-mono text-xs transition-colors cursor-pointer ${
+                  zoom === 1.15
+                    ? "bg-white text-blue-600 font-bold shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                115%
+              </button>
+            </div>
+
+            {/* Right CTA */}
+            <div className="flex items-center gap-2">
+              <span className="hidden md:inline-flex items-center gap-1 font-mono text-xs text-emerald-700 font-medium">
+                <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
+                TS Verified
+              </span>
+              <button
+                type="button"
+                onClick={exportPDF}
+                className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download PDF</span>
+              </button>
             </div>
           </div>
 
-          {/* Proposal Document Canvas */}
-          <div className="flex-1 py-8 px-6 print:p-0">
+          {/* Live Document Paper Canvas Container */}
+          <div
+            className="w-full max-w-[780px] transition-transform duration-200 origin-top flex justify-center print:max-w-none print:transform-none"
+            style={{ transform: `scale(${zoom})` }}
+          >
             <ProposalPreview proposal={proposal} theme={theme} />
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );
 }
-

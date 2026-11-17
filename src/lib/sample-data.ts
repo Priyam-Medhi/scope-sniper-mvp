@@ -1,3 +1,5 @@
+import type { EnrichedProposal } from "@/types/proposal";
+
 export const SAMPLE_TRANSCRIPT = `[Sales Call Transcript — QuantumLeap Fitness x Apex Digital Agency]
 [Date: November 4, 2026 | Duration: 42 minutes]
 
@@ -57,4 +59,126 @@ export const DEFAULT_RATE_CARD = `## Agency Rate Card — Apex Digital
 | Video Platform        | Streaming Infrastructure  | $5,000     | fixed    |
 | Post-Launch Support   | Monthly Retainer          | $4,500/mo  | retainer |
 | Strategy & Discovery  | Discovery Workshop        | $3,500     | fixed    |`;
+
+export const SAMPLE_ACME_RATE_CARD = `Senior Full-Stack Engineering: $125/hr
+UI/UX Design System: $95/hr
+Cloud Infrastructure & DevOps: $140/hr
+Project Management & QA: $85/hr
+AI Solutions Architect: $165/hr`;
+
+export const SAMPLE_ACME_TRANSCRIPT = `Client (Acme VP): We need a complete portal rebuild with Next.js, Postgres, and Stripe subscriptions. We also mentioned maybe doing an iOS app and custom AI recommendations if budget permits, but our immediate launch date is in 8 weeks. We cannot exceed $16k upfront.`;
+
+export const DEFAULT_PROPOSAL: EnrichedProposal = {
+  clientName: "VP of Product",
+  clientCompany: "Acme Corp",
+  projectTitle: "Acme Corp — Full-Stack Web Platform & API Redesign",
+  proposalDate: "2026-10-24",
+  validUntilDate: "2026-11-07",
+  executiveSummary:
+    "ScopeLock AI has parsed discovery notes from Oct 23. This proposal outlines the guaranteed deliverables, fixed pricing model, and explicit out-of-scope boundaries to ensure on-time delivery within the target 8-week launch window without unbudgeted scope drift.\n\nBy leveraging deterministic scoping and modular Next.js architecture, this engagement guarantees zero surprise costs and total alignment on production timelines.",
+  scopePhases: [
+    {
+      phaseNumber: 1,
+      phaseTitle: "Core Web Platform Architecture",
+      timelineWeeks: 2,
+      deliverables: [
+        "Next.js 15 App Router setup, server actions, and high-performance caching layer",
+        "Responsive desktop and mobile UI components built with Tailwind CSS",
+      ],
+      outOfScope: [
+        "Native mobile applications (iOS / Android Swift/Kotlin)",
+      ],
+    },
+    {
+      phaseNumber: 2,
+      phaseTitle: "Secure Stripe Billing & Subscriptions",
+      timelineWeeks: 2,
+      deliverables: [
+        "Tiered pricing model checkout, customer portal, and robust webhook synchronization",
+        "Automated recurring invoice generation and failed-payment handling",
+      ],
+      outOfScope: [
+        "Custom crypto or multi-currency escrow payment gateways",
+      ],
+    },
+    {
+      phaseNumber: 3,
+      phaseTitle: "Production PostgreSQL & ORM Modeling",
+      timelineWeeks: 2,
+      deliverables: [
+        "Automated schema migrations, indexing strategies, and automated backup routines",
+        "Role-based access control (RBAC) and audited session management",
+      ],
+      outOfScope: [
+        "Legacy data scraping or unindexed manual CSV record conversions",
+      ],
+    },
+    {
+      phaseNumber: 4,
+      phaseTitle: "Cloud Deployment & CI/CD Pipelines",
+      timelineWeeks: 2,
+      deliverables: [
+        "Production containerization, preview deployments on AWS/Vercel, and health check alerts",
+        "Staging and production environment automated regression suites",
+      ],
+      outOfScope: [
+        "Custom AI Recommendation Model fine-tuning & vector indexing",
+        "24/7 post-launch SLA emergency support (Standard 30-day bug warranty included)",
+      ],
+    },
+  ],
+  lineItems: [
+    {
+      itemTitle: "Next.js Frontend Architecture",
+      category: "Frontend Development",
+      description: "Full modern App Router setup with responsive views",
+      quantity: 40,
+      unitType: "hours",
+      unitPrice: 125,
+      lineTotal: 5000,
+    },
+    {
+      itemTitle: "PostgreSQL Schema & Stripe Billing API",
+      category: "Backend Development",
+      description: "Database modeling and end-to-end checkout integration",
+      quantity: 35,
+      unitType: "hours",
+      unitPrice: 125,
+      lineTotal: 4375,
+    },
+    {
+      itemTitle: "Design System & Component Library",
+      category: "UI/UX Design",
+      description: "Accessible design tokens, typography scale, and layout kits",
+      quantity: 25,
+      unitType: "hours",
+      unitPrice: 95,
+      lineTotal: 2375,
+    },
+    {
+      itemTitle: "Cloud Deployment & CI/CD Pipelines",
+      category: "DevOps & Cloud",
+      description: "Automated pipelines, staging environments, and monitoring",
+      quantity: 15,
+      unitType: "hours",
+      unitPrice: 140,
+      lineTotal: 2100,
+    },
+  ],
+  subtotal: 13850,
+  taxRate: 8.5,
+  taxAmount: 1177.25,
+  grandTotal: 15027.25,
+  customExclusions: [
+    "Native iOS & Android Mobile Apps",
+    "Custom AI Recommendation Model",
+    "Unmetered Post-Launch Maintenance",
+  ],
+  currencySymbol: "$",
+  assumptionsAndTerms: [
+    "50% upfront deposit required prior to project kickoff; 50% due upon production deployment.",
+    "Scope changes require a written and signed Change Order before implementation.",
+    "Client will provide required brand assets, API credentials, and feedback within 48 hours.",
+  ],
+};
 

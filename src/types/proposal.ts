@@ -44,6 +44,8 @@ export interface EnrichedProposal extends Omit<ProposalData, "lineItems"> {
   taxRate: number;
   taxAmount: number;
   grandTotal: number;
+  customExclusions?: string[];
+  currencySymbol?: string;
 }
 
 // ─── Gemini responseSchema (google/genai Type format) ───────────────────────

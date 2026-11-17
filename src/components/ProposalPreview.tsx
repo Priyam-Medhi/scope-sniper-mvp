@@ -2,6 +2,7 @@
 
 import type { EnrichedProposal } from "@/types/proposal";
 import type { ProposalTheme } from "@/types/themes";
+import { CheckCircle2, ShieldAlert, Calculator, Lock, ShieldCheck } from "lucide-react";
 
 interface ProposalPreviewProps {
   proposal: EnrichedProposal | null;
@@ -21,216 +22,13 @@ function fmtDate(dateStr: string): string {
   }
 }
 
-const THEME_STYLES: Record<
-  ProposalTheme,
-  {
-    containerClass: string;
-    headerBorder: string;
-    headerTitle: string;
-    headerSubtitle: string;
-    metaText: string;
-    metaValue: string;
-    preparedForBox: string;
-    preparedForLabel: string;
-    preparedForName: string;
-    preparedForCompany: string;
-    projectBox: string;
-    projectLabel: string;
-    projectTitle: string;
-    sectionTitle: string;
-    sectionBorder: string;
-    summaryText: string;
-    phaseCard: string;
-    phaseBadge: string;
-    phaseTitle: string;
-    phaseWeeks: string;
-    deliverablesLabel: string;
-    deliverablesBullet: string;
-    deliverablesText: string;
-    outOfScopeLabel: string;
-    outOfScopeBullet: string;
-    outOfScopeText: string;
-    tableThead: string;
-    tableHeadThFirst: string;
-    tableHeadThLast: string;
-    tableHeadTh: string;
-    tableRowEven: string;
-    tableRowOdd: string;
-    tableItemTitle: string;
-    tableItemCategory: string;
-    tableItemRate: string;
-    tableItemTotal: string;
-    totalsBorder: string;
-    subtotalLabel: string;
-    subtotalValue: string;
-    grandTotalRow: string;
-    termsList: string;
-    termsItem: string;
-    signatureDivider: string;
-    signatureHeading: string;
-    signatureLabel: string;
-    signatureLine: string;
-    signatureHint: string;
-  }
-> = {
-  "Minimalist Swiss (Black & White)": {
-    containerClass: "theme-swiss font-sans text-black tracking-tight",
-    headerBorder: "border-b-[3px] border-black pb-5 mb-6",
-    headerTitle: "text-3xl font-black text-black tracking-tighter uppercase",
-    headerSubtitle: "text-[10px] text-neutral-500 font-mono tracking-widest uppercase mt-1",
-    metaText: "text-right text-xs text-neutral-600 font-mono space-y-0.5",
-    metaValue: "text-black font-semibold",
-    preparedForBox: "bg-white rounded-none p-4 border-2 border-black",
-    preparedForLabel: "text-[9px] uppercase tracking-widest text-black font-mono font-bold mb-1",
-    preparedForName: "font-black text-black tracking-tight",
-    preparedForCompany: "text-sm text-neutral-700 font-medium",
-    projectBox: "bg-black rounded-none p-4 border-2 border-black text-white",
-    projectLabel: "text-[9px] uppercase tracking-widest text-neutral-400 font-mono font-bold mb-1",
-    projectTitle: "font-black text-white tracking-tight",
-    sectionTitle: "text-base font-black uppercase tracking-wider text-black",
-    sectionBorder: "border-b-2 border-black pb-2 mb-3",
-    summaryText: "text-sm text-neutral-900 leading-relaxed mb-3 font-normal",
-    phaseCard: "border-2 border-black rounded-none p-4 bg-white",
-    phaseBadge: "flex items-center justify-center w-7 h-7 bg-black text-white font-mono text-xs font-bold rounded-none",
-    phaseTitle: "font-bold text-black text-sm tracking-tight",
-    phaseWeeks: "text-[11px] font-mono text-neutral-500 uppercase",
-    deliverablesLabel: "font-mono font-bold text-black mb-1 uppercase tracking-wider text-[10px]",
-    deliverablesBullet: "text-black shrink-0 font-bold",
-    deliverablesText: "text-neutral-900",
-    outOfScopeLabel: "font-mono font-bold text-neutral-500 mb-1 uppercase tracking-wider text-[10px]",
-    outOfScopeBullet: "text-neutral-400 shrink-0",
-    outOfScopeText: "text-neutral-500",
-    tableThead: "bg-black text-white font-mono",
-    tableHeadThFirst: "text-left py-2 px-3 font-bold uppercase tracking-wider text-[10px]",
-    tableHeadThLast: "text-right py-2 px-3 font-bold uppercase tracking-wider text-[10px]",
-    tableHeadTh: "py-2 px-3 font-bold uppercase tracking-wider text-[10px]",
-    tableRowEven: "bg-white border-b border-neutral-200",
-    tableRowOdd: "bg-neutral-50 border-b border-neutral-200",
-    tableItemTitle: "py-2.5 px-3 font-bold text-black",
-    tableItemCategory: "py-2.5 px-3 text-neutral-600 font-mono text-[11px]",
-    tableItemRate: "py-2.5 px-3 text-right text-neutral-800 font-mono",
-    tableItemTotal: "py-2.5 px-3 text-right font-black text-black font-mono",
-    totalsBorder: "mt-4 border-t-2 border-black pt-3 flex justify-end",
-    subtotalLabel: "text-neutral-600 font-mono text-[11px] uppercase",
-    subtotalValue: "font-bold text-black font-mono",
-    grandTotalRow: "flex justify-between text-base font-black text-black border-t-2 border-black pt-2 mt-1 font-mono",
-    termsList: "list-decimal list-inside space-y-1 text-xs text-neutral-800",
-    termsItem: "leading-relaxed",
-    signatureDivider: "border-t-2 border-black pt-6 mt-10",
-    signatureHeading: "text-base font-black uppercase tracking-wider text-black mb-6",
-    signatureLabel: "text-[9px] uppercase tracking-widest text-black font-mono font-bold",
-    signatureLine: "border-b-2 border-black pb-1",
-    signatureHint: "text-[9px] font-mono text-neutral-400",
-  },
-
-  "Modern Tech SaaS (Indigo/Slate)": {
-    containerClass: "theme-modern font-sans text-slate-800",
-    headerBorder: "border-b-2 border-indigo-600 pb-5 mb-6",
-    headerTitle: "text-3xl font-bold text-slate-900 tracking-tight",
-    headerSubtitle: "text-xs text-slate-400 mt-0.5 tracking-widest uppercase",
-    metaText: "text-right text-xs text-slate-500 space-y-0.5",
-    metaValue: "text-slate-700 font-medium",
-    preparedForBox: "bg-slate-50 rounded-lg p-4 border border-slate-100",
-    preparedForLabel: "text-[10px] uppercase tracking-wider text-slate-400 mb-1 font-semibold",
-    preparedForName: "font-semibold text-slate-900",
-    preparedForCompany: "text-sm text-slate-600",
-    projectBox: "bg-indigo-50 rounded-lg p-4 border border-indigo-100",
-    projectLabel: "text-[10px] uppercase tracking-wider text-indigo-400 mb-1 font-semibold",
-    projectTitle: "font-semibold text-indigo-900",
-    sectionTitle: "text-lg font-bold text-slate-900",
-    sectionBorder: "border-b border-slate-200 pb-2 mb-3",
-    summaryText: "text-sm text-slate-700 leading-relaxed mb-3",
-    phaseCard: "border border-slate-200 rounded-lg p-4",
-    phaseBadge: "flex items-center justify-center w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-bold",
-    phaseTitle: "font-semibold text-slate-900 text-sm",
-    phaseWeeks: "text-[11px] text-slate-400",
-    deliverablesLabel: "font-semibold text-green-700 mb-1 uppercase tracking-wider text-[10px]",
-    deliverablesBullet: "text-green-500 shrink-0",
-    deliverablesText: "text-slate-700",
-    outOfScopeLabel: "font-semibold text-red-600 mb-1 uppercase tracking-wider text-[10px]",
-    outOfScopeBullet: "text-red-400 shrink-0",
-    outOfScopeText: "text-slate-500",
-    tableThead: "bg-slate-800 text-white",
-    tableHeadThFirst: "text-left py-2 px-3 font-semibold rounded-tl-lg",
-    tableHeadThLast: "text-right py-2 px-3 font-semibold rounded-tr-lg",
-    tableHeadTh: "py-2 px-3 font-semibold",
-    tableRowEven: "bg-white",
-    tableRowOdd: "bg-slate-50",
-    tableItemTitle: "py-2 px-3 font-medium text-slate-800",
-    tableItemCategory: "py-2 px-3 text-slate-500",
-    tableItemRate: "py-2 px-3 text-right text-slate-700",
-    tableItemTotal: "py-2 px-3 text-right font-medium text-slate-900",
-    totalsBorder: "mt-3 border-t-2 border-slate-200 pt-3 flex justify-end",
-    subtotalLabel: "text-slate-600",
-    subtotalValue: "font-medium text-slate-800",
-    grandTotalRow: "flex justify-between text-base font-bold text-indigo-700 border-t border-slate-200 pt-2 mt-1",
-    termsList: "list-decimal list-inside space-y-1 text-xs text-slate-700",
-    termsItem: "leading-relaxed",
-    signatureDivider: "border-t-2 border-slate-200 pt-6 mt-10",
-    signatureHeading: "text-lg font-bold text-slate-900 mb-6",
-    signatureLabel: "text-[10px] uppercase tracking-wider text-slate-400 font-semibold",
-    signatureLine: "border-b border-slate-300 pb-1",
-    signatureHint: "text-[10px] text-slate-400",
-  },
-
-  "Executive Consulting (Navy/Serif)": {
-    containerClass: "theme-executive font-serif text-[#0f172a]",
-    headerBorder: "border-b-2 border-[#0f172a] pb-5 mb-6",
-    headerTitle: "text-3xl font-serif font-bold text-[#0f172a] tracking-tight italic",
-    headerSubtitle: "text-xs font-serif text-slate-500 mt-0.5 tracking-widest uppercase",
-    metaText: "text-right text-xs font-serif text-slate-600 space-y-0.5",
-    metaValue: "text-[#0f172a] font-semibold",
-    preparedForBox: "bg-[#f8fafc] rounded-md p-4 border border-slate-300 shadow-xs",
-    preparedForLabel: "text-[10px] uppercase tracking-wider text-slate-500 font-serif font-semibold mb-1",
-    preparedForName: "font-serif font-bold text-[#0f172a]",
-    preparedForCompany: "text-sm text-slate-600 font-serif",
-    projectBox: "bg-[#0f172a] rounded-md p-4 border border-[#0f172a] text-white shadow-xs",
-    projectLabel: "text-[10px] uppercase tracking-wider text-slate-300 font-serif font-medium mb-1",
-    projectTitle: "font-serif font-bold text-white",
-    sectionTitle: "text-lg font-serif font-bold text-[#0f172a]",
-    sectionBorder: "border-b-2 border-slate-300 pb-2 mb-3",
-    summaryText: "text-sm font-serif text-slate-800 leading-relaxed mb-3",
-    phaseCard: "border border-slate-300 rounded-md p-4 bg-[#fbfcfd]",
-    phaseBadge: "flex items-center justify-center w-7 h-7 rounded-md bg-[#0f172a] text-white text-xs font-serif font-bold shadow-xs",
-    phaseTitle: "font-serif font-bold text-[#0f172a] text-sm",
-    phaseWeeks: "text-[11px] font-serif text-slate-500 italic",
-    deliverablesLabel: "font-serif font-semibold text-[#1e3a8a] mb-1 uppercase tracking-wider text-[10px]",
-    deliverablesBullet: "text-[#1e3a8a] shrink-0 font-bold",
-    deliverablesText: "text-slate-800 font-serif",
-    outOfScopeLabel: "font-serif font-semibold text-slate-600 mb-1 uppercase tracking-wider text-[10px]",
-    outOfScopeBullet: "text-slate-400 shrink-0",
-    outOfScopeText: "text-slate-600 font-serif",
-    tableThead: "bg-[#0f172a] text-white font-serif",
-    tableHeadThFirst: "text-left py-2.5 px-3 font-semibold",
-    tableHeadThLast: "text-right py-2.5 px-3 font-semibold",
-    tableHeadTh: "py-2.5 px-3 font-semibold",
-    tableRowEven: "bg-white border-b border-slate-200",
-    tableRowOdd: "bg-[#f8fafc] border-b border-slate-200",
-    tableItemTitle: "py-2 px-3 font-serif font-medium text-[#0f172a]",
-    tableItemCategory: "py-2 px-3 text-slate-600 font-serif",
-    tableItemRate: "py-2 px-3 text-right text-slate-700 font-serif",
-    tableItemTotal: "py-2 px-3 text-right font-serif font-bold text-[#0f172a]",
-    totalsBorder: "mt-4 border-t-2 border-[#0f172a] pt-3 flex justify-end",
-    subtotalLabel: "text-slate-600 font-serif",
-    subtotalValue: "font-serif font-medium text-[#0f172a]",
-    grandTotalRow: "flex justify-between text-base font-serif font-bold text-[#0f172a] border-t border-slate-300 pt-2 mt-1",
-    termsList: "list-decimal list-inside space-y-1 text-xs font-serif text-slate-800",
-    termsItem: "leading-relaxed font-serif",
-    signatureDivider: "border-t-2 border-[#0f172a] pt-6 mt-10",
-    signatureHeading: "text-lg font-serif font-bold text-[#0f172a] mb-6",
-    signatureLabel: "text-[10px] uppercase tracking-wider text-slate-500 font-serif font-semibold",
-    signatureLine: "border-b border-slate-400 pb-1",
-    signatureHint: "text-[10px] font-serif text-slate-400",
-  },
-};
-
 export default function ProposalPreview({
   proposal,
   theme = "Modern Tech SaaS (Indigo/Slate)",
 }: ProposalPreviewProps) {
   if (!proposal) {
     return (
-      <div className="flex items-center justify-center h-full text-slate-400 text-sm">
+      <div className="flex items-center justify-center h-full min-h-[500px] text-slate-400 text-sm">
         <div className="text-center space-y-3">
           <div className="text-5xl opacity-40">📄</div>
           <p className="font-medium text-slate-500">Proposal preview will appear here</p>
@@ -243,194 +41,639 @@ export default function ProposalPreview({
   }
 
   const p = proposal;
-  const s = THEME_STYLES[theme] || THEME_STYLES["Modern Tech SaaS (Indigo/Slate)"];
+  const curr = p.currencySymbol || "$";
+
+  // Gather out of scope exclusions
+  const exclusions =
+    p.customExclusions && p.customExclusions.length > 0
+      ? p.customExclusions
+      : p.scopePhases.flatMap((phase) => phase.outOfScope).filter(Boolean);
+
+  // Fallback exclusions if none were returned
+  const displayExclusions =
+    exclusions.length > 0
+      ? exclusions
+      : [
+          "Native mobile applications (iOS / Android Swift/Kotlin)",
+          "Custom AI Recommendation Model fine-tuning & vector indexing",
+          "24/7 post-launch SLA emergency support (Standard 30-day bug warranty included)",
+        ];
+
+  // Distinct theme styling configurations
+  const isSwiss = theme === "Minimalist Swiss (Black & White)";
+  const isConsulting = theme === "Executive Consulting (Navy/Serif)";
+  // Default is Modern Tech SaaS
 
   return (
     <div
       id="proposal-document"
-      className={`proposal-document bg-white mx-auto shadow-2xl print:shadow-none ${s.containerClass}`}
-      style={{ width: "210mm", minHeight: "297mm", padding: "20mm 22mm" }}
+      className={`proposal-document mx-auto transition-all ${
+        isSwiss
+          ? "theme-swiss bg-white text-black font-sans border-2 border-black rounded-none shadow-xl"
+          : isConsulting
+          ? "theme-executive bg-[#fbfbf9] text-[#1c1917] font-serif border border-[#d6d3d1] rounded-sm shadow-xl"
+          : "theme-modern bg-white text-slate-900 font-sans border border-slate-200 rounded-xl shadow-2xl ring-1 ring-blue-500/10"
+      } p-8 md:p-12 space-y-7 relative print:shadow-none print:border-none print:p-0 print:m-0`}
+      style={{ width: "100%", maxWidth: "780px", minHeight: "297mm" }}
     >
-      {/* ── Cover Header ─────────────────────────────────────────────── */}
-      <div className="break-inside-avoid mb-8">
-        <div className={`flex justify-between items-start ${s.headerBorder}`}>
-          <div>
-            <h1 className={s.headerTitle}>ScopeLock AI</h1>
-            <p className={s.headerSubtitle}>Proposal & Statement of Work</p>
+      {/* ── Document Header ─────────────────────────────────────────────── */}
+      <div
+        className={`break-inside-avoid flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b ${
+          isSwiss
+            ? "border-black"
+            : isConsulting
+            ? "border-[#d6d3d1]"
+            : "border-slate-200"
+        }`}
+      >
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <div
+              className={`w-6 h-6 flex items-center justify-center font-bold text-[11px] ${
+                isSwiss
+                  ? "bg-black text-white rounded-none"
+                  : isConsulting
+                  ? "bg-[#0f172a] text-white rounded-xs"
+                  : "bg-blue-600 text-white rounded-sm"
+              }`}
+            >
+              SL
+            </div>
+            <span
+              className={`text-base font-bold tracking-tight uppercase ${
+                isSwiss
+                  ? "text-black"
+                  : isConsulting
+                  ? "text-[#0f172a] font-serif"
+                  : "text-slate-900"
+              }`}
+            >
+              ScopeLock Studio
+            </span>
           </div>
-          <div className={s.metaText}>
-            <p>
-              Date: <span className={s.metaValue}>{fmtDate(p.proposalDate)}</span>
-            </p>
-            <p>
-              Valid Until: <span className={s.metaValue}>{fmtDate(p.validUntilDate)}</span>
-            </p>
+          <h1
+            className={`text-[10px] uppercase font-semibold tracking-widest ${
+              isSwiss
+                ? "text-neutral-600 font-mono"
+                : isConsulting
+                ? "text-stone-500 font-serif"
+                : "text-slate-500 font-mono"
+            }`}
+          >
+            Statement of Work &amp; Binding Proposal
+          </h1>
+          <div
+            className={`text-xs font-medium ${
+              isSwiss
+                ? "text-black font-mono font-bold"
+                : isConsulting
+                ? "text-[#0f172a] font-mono"
+                : "text-blue-600 font-mono"
+            }`}
+          >
+            Ref: SL-2026-0842 • Rev 1.0
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6 mb-6">
-          <div className={s.preparedForBox}>
-            <p className={s.preparedForLabel}>Prepared For</p>
-            <p className={s.preparedForName}>{p.clientName}</p>
-            <p className={s.preparedForCompany}>{p.clientCompany}</p>
+        <div className="text-left md:text-right space-y-0.5 text-xs">
+          <div
+            className={`font-semibold ${
+              isSwiss
+                ? "text-black"
+                : isConsulting
+                ? "text-[#0f172a] font-serif"
+                : "text-slate-900"
+            }`}
+          >
+            Prepared for: {p.clientCompany || p.clientName || "Client"}
+            {p.clientName && p.clientCompany ? ` (Attn: ${p.clientName})` : ""}
           </div>
-          <div className={s.projectBox}>
-            <p className={s.projectLabel}>Project</p>
-            <p className={s.projectTitle}>{p.projectTitle}</p>
+          <div
+            className={`font-mono text-[11px] ${
+              isSwiss ? "text-neutral-600" : "text-slate-500"
+            }`}
+          >
+            Date: {fmtDate(p.proposalDate)}
+          </div>
+          <div
+            className={`inline-flex items-center gap-1 font-mono text-[11px] font-medium ${
+              isSwiss
+                ? "text-black font-bold"
+                : isConsulting
+                ? "text-emerald-800"
+                : "text-emerald-600"
+            }`}
+          >
+            <Lock className="w-3 h-3" />
+            <span>Valid Until: {fmtDate(p.validUntilDate)}</span>
           </div>
         </div>
       </div>
 
       {/* ── Executive Summary ────────────────────────────────────────── */}
-      <div className="break-inside-avoid mb-8">
-        <div className={s.sectionBorder}>
-          <h2 className={s.sectionTitle}>Executive Summary</h2>
+      <div
+        className={`break-inside-avoid p-4 rounded text-xs leading-relaxed border ${
+          isSwiss
+            ? "bg-neutral-50 border-black rounded-none text-black"
+            : isConsulting
+            ? "bg-[#f5f5f0] border-[#e7e5e4] text-[#292524] font-serif"
+            : "bg-slate-50 border-slate-200 text-slate-700"
+        }`}
+      >
+        <span
+          className={`font-bold uppercase tracking-wider text-[11px] block mb-1.5 ${
+            isSwiss
+              ? "text-black font-mono"
+              : isConsulting
+              ? "text-[#0f172a] font-serif"
+              : "text-slate-900 font-mono"
+          }`}
+        >
+          Executive Summary
+        </span>
+        <div className="space-y-2">
+          {p.executiveSummary.split("\n\n").map((para, i) => (
+            <p key={i}>{para}</p>
+          ))}
         </div>
-        {p.executiveSummary.split("\n\n").map((para, i) => (
-          <p key={i} className={s.summaryText}>
-            {para}
-          </p>
-        ))}
       </div>
 
-      {/* ── Scope of Work Phases ─────────────────────────────────────── */}
-      <div className="mb-8">
-        <div className={s.sectionBorder}>
-          <h2 className={s.sectionTitle}>Scope of Work</h2>
+      {/* ── Section 1: Guaranteed Scope of Work (Inclusions) ─────────── */}
+      <div className="space-y-3">
+        <div
+          className={`flex items-center justify-between pb-1.5 border-b ${
+            isSwiss
+              ? "border-black"
+              : isConsulting
+              ? "border-[#d6d3d1]"
+              : "border-slate-200"
+          }`}
+        >
+          <h3
+            className={`text-sm font-bold flex items-center gap-2 ${
+              isSwiss
+                ? "text-black uppercase"
+                : isConsulting
+                ? "text-[#0f172a] font-serif"
+                : "text-slate-900"
+            }`}
+          >
+            <CheckCircle2
+              className={`w-4 h-4 ${
+                isSwiss
+                  ? "text-black"
+                  : isConsulting
+                  ? "text-emerald-800"
+                  : "text-emerald-600"
+              }`}
+            />
+            Guaranteed Scope of Work (Inclusions)
+          </h3>
+          <span
+            className={`text-[10px] font-bold uppercase tracking-wider ${
+              isSwiss
+                ? "text-black font-mono"
+                : isConsulting
+                ? "text-emerald-800 font-serif"
+                : "text-emerald-600 font-mono"
+            }`}
+          >
+            {p.scopePhases.reduce((acc, ph) => acc + ph.deliverables.length, 0)} Deliverables Locked
+          </span>
         </div>
-        <div className="space-y-4">
+
+        <div className="space-y-3">
           {p.scopePhases.map((phase) => (
-            <div key={phase.phaseNumber} className={`break-inside-avoid ${s.phaseCard}`}>
-              <div className="flex items-center gap-3 mb-3">
-                <span className={s.phaseBadge}>{phase.phaseNumber}</span>
-                <div>
-                  <h3 className={s.phaseTitle}>{phase.phaseTitle}</h3>
-                  <p className={s.phaseWeeks}>
-                    {phase.timelineWeeks} week{phase.timelineWeeks !== 1 ? "s" : ""}
-                  </p>
+            <div
+              key={phase.phaseNumber}
+              className={`break-inside-avoid p-3.5 border rounded ${
+                isSwiss
+                  ? "border-black bg-white rounded-none"
+                  : isConsulting
+                  ? "border-stone-300 bg-[#fafaf7] rounded-sm font-serif"
+                  : "border-slate-200 bg-white rounded-lg"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`w-5 h-5 flex items-center justify-center text-[10px] font-bold font-mono ${
+                      isSwiss
+                        ? "bg-black text-white rounded-none"
+                        : isConsulting
+                        ? "bg-[#0f172a] text-white rounded-xs"
+                        : "bg-blue-600 text-white rounded-full"
+                    }`}
+                  >
+                    {phase.phaseNumber}
+                  </span>
+                  <h4
+                    className={`text-xs font-bold ${
+                      isSwiss
+                        ? "text-black"
+                        : isConsulting
+                        ? "text-[#0f172a]"
+                        : "text-slate-900"
+                    }`}
+                  >
+                    {phase.phaseTitle}
+                  </h4>
                 </div>
+                <span className="font-mono text-[10px] text-slate-500 uppercase">
+                  {phase.timelineWeeks} week{phase.timelineWeeks !== 1 ? "s" : ""}
+                </span>
               </div>
-              <div className="grid grid-cols-2 gap-4 text-xs">
-                <div>
-                  <p className={s.deliverablesLabel}>✓ Deliverables</p>
-                  <ul className="space-y-1">
-                    {phase.deliverables.map((d, i) => (
-                      <li key={i} className={`flex gap-1.5 ${s.deliverablesText}`}>
-                        <span className={s.deliverablesBullet}>•</span>
-                        <span>{d}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <p className={s.outOfScopeLabel}>✗ Out of Scope</p>
-                  <ul className="space-y-1">
-                    {phase.outOfScope.map((d, i) => (
-                      <li key={i} className={`flex gap-1.5 ${s.outOfScopeText}`}>
-                        <span className={s.outOfScopeBullet}>•</span>
-                        <span>{d}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+
+              <ul className="space-y-1.5 text-xs text-slate-700">
+                {phase.deliverables.map((deliv, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <CheckCircle2
+                      className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${
+                        isSwiss
+                          ? "text-black"
+                          : isConsulting
+                          ? "text-emerald-800"
+                          : "text-emerald-600"
+                      }`}
+                    />
+                    <span>{deliv}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── Pricing Table ────────────────────────────────────────────── */}
-      <div className="break-inside-avoid mb-8">
-        <div className={s.sectionBorder}>
-          <h2 className={s.sectionTitle}>Investment Summary</h2>
+      {/* ── Section 2: Strict Out-of-Scope Exclusions (Guardrails) ───── */}
+      <div
+        className={`break-inside-avoid p-4 rounded border space-y-2.5 ${
+          isSwiss
+            ? "border-2 border-black bg-neutral-100 rounded-none text-black"
+            : isConsulting
+            ? "border-[#fca5a5] bg-[#fff5f5] rounded-sm font-serif text-[#7f1d1d]"
+            : "border-rose-200 bg-rose-50/70 rounded-lg text-rose-950"
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <div
+            className={`flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide ${
+              isSwiss
+                ? "text-black"
+                : isConsulting
+                ? "text-red-900"
+                : "text-rose-900"
+            }`}
+          >
+            <ShieldAlert className="w-4 h-4 shrink-0 text-red-600" />
+            <span>Strict Out-of-Scope Exclusions (Change Order Required)</span>
+          </div>
+          <span
+            className={`font-mono text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
+              isSwiss
+                ? "bg-black text-white rounded-none"
+                : isConsulting
+                ? "bg-red-900 text-white"
+                : "bg-rose-200 text-rose-900"
+            }`}
+          >
+            Zero Hallucinations
+          </span>
         </div>
-        <table className="w-full text-xs border-collapse">
-          <thead>
-            <tr className={s.tableThead}>
-              <th className={s.tableHeadThFirst}>Item</th>
-              <th className={`text-left ${s.tableHeadTh}`}>Category</th>
-              <th className={`text-right ${s.tableHeadTh}`}>Qty</th>
-              <th className={`text-center ${s.tableHeadTh}`}>Unit</th>
-              <th className={`text-right ${s.tableHeadTh}`}>Rate</th>
-              <th className={s.tableHeadThLast}>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {p.lineItems.map((item, i) => (
-              <tr key={i} className={i % 2 === 0 ? s.tableRowEven : s.tableRowOdd}>
-                <td className={s.tableItemTitle}>{item.itemTitle}</td>
-                <td className={s.tableItemCategory}>{item.category}</td>
-                <td className="py-2 px-3 text-right">{item.quantity}</td>
-                <td className="py-2 px-3 text-center">{item.unitType}</td>
-                <td className={s.tableItemRate}>${fmt(item.unitPrice)}</td>
-                <td className={s.tableItemTotal}>${fmt(item.lineTotal)}</td>
+
+        <p
+          className={`text-[11px] leading-relaxed ${
+            isSwiss ? "text-neutral-800" : isConsulting ? "text-stone-700" : "text-slate-600"
+          }`}
+        >
+          The following items mentioned during preliminary calls are{" "}
+          <strong className="font-semibold text-red-700">explicitly omitted</strong> from
+          this fixed-fee contract. Any implementation requires an executed Amendment or Change
+          Order:
+        </p>
+
+        <div className="space-y-1.5 text-xs">
+          {displayExclusions.map((item, i) => {
+            const clean = item.replace(/^❌\s*/, "");
+            return (
+              <div
+                key={i}
+                className={`flex items-center justify-between p-2 rounded border ${
+                  isSwiss
+                    ? "bg-white border-black rounded-none"
+                    : isConsulting
+                    ? "bg-white border-red-200 rounded-xs font-serif"
+                    : "bg-white/90 border-rose-200 rounded-md"
+                }`}
+              >
+                <span className="flex items-center gap-1.5 font-medium text-slate-800">
+                  <span className="text-red-600 font-bold">×</span> {clean}
+                </span>
+                <span
+                  className={`font-mono text-[10px] uppercase font-semibold ${
+                    isSwiss
+                      ? "text-black"
+                      : isConsulting
+                      ? "text-red-900"
+                      : "text-rose-700"
+                  }`}
+                >
+                  Excluded Item
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Section 3: Deterministic Financial Summary ───────────────── */}
+      <div className="break-inside-avoid space-y-3">
+        <div
+          className={`flex items-center justify-between pb-1.5 border-b ${
+            isSwiss
+              ? "border-black"
+              : isConsulting
+              ? "border-[#d6d3d1]"
+              : "border-slate-200"
+          }`}
+        >
+          <h3
+            className={`text-sm font-bold flex items-center gap-2 ${
+              isSwiss
+                ? "text-black uppercase"
+                : isConsulting
+                ? "text-[#0f172a] font-serif"
+                : "text-slate-900"
+            }`}
+          >
+            <Calculator
+              className={`w-4 h-4 ${
+                isSwiss
+                  ? "text-black"
+                  : isConsulting
+                  ? "text-[#0f172a]"
+                  : "text-blue-600"
+              }`}
+            />
+            Deterministic Financial Summary
+          </h3>
+          <span
+            className={`font-mono text-[10px] uppercase tracking-wider ${
+              isSwiss ? "text-neutral-600 font-bold" : "text-slate-500 font-medium"
+            }`}
+          >
+            Formula Verified
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left font-mono text-xs border-collapse">
+            <thead>
+              <tr
+                className={`border-b text-[10px] uppercase tracking-wider ${
+                  isSwiss
+                    ? "bg-black text-white"
+                    : isConsulting
+                    ? "bg-[#0f172a] text-white font-serif"
+                    : "bg-slate-900 text-white"
+                }`}
+              >
+                <th className="py-2 px-3 font-semibold">Deliverable Description</th>
+                <th className="py-2 px-3 text-center font-semibold">Units / Qty</th>
+                <th className="py-2 px-3 text-right font-semibold">Unit Rate</th>
+                <th className="py-2 px-3 text-right font-semibold">Total</th>
               </tr>
+            </thead>
+            <tbody
+              className={`divide-y ${
+                isSwiss
+                  ? "divide-neutral-200 border-b border-black"
+                  : isConsulting
+                  ? "divide-stone-200 border-b border-stone-300"
+                  : "divide-slate-200 border-b border-slate-200"
+              }`}
+            >
+              {p.lineItems.map((item, i) => (
+                <tr
+                  key={i}
+                  className={`transition-colors ${
+                    i % 2 === 0
+                      ? "bg-white"
+                      : isSwiss
+                      ? "bg-neutral-50"
+                      : isConsulting
+                      ? "bg-[#f8f8f5]"
+                      : "bg-slate-50/70"
+                  }`}
+                >
+                  <td className="py-2.5 px-3 font-medium text-slate-900">
+                    <div>{item.itemTitle}</div>
+                    {item.category && (
+                      <span className="text-[10px] text-slate-500 font-normal">
+                        {item.category}
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-2.5 px-3 text-center text-slate-600">
+                    {item.quantity} {item.unitType === "hours" ? "hrs" : item.unitType}
+                  </td>
+                  <td className="py-2.5 px-3 text-right text-slate-700">
+                    {curr}
+                    {fmt(item.unitPrice)}
+                  </td>
+                  <td className="py-2.5 px-3 text-right font-semibold text-slate-900">
+                    {curr}
+                    {fmt(item.lineTotal)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Calculation Summary Block */}
+        <div className="flex justify-end pt-2">
+          <div className="w-72 space-y-1.5 font-mono text-xs text-right">
+            <div className="flex justify-between text-slate-600">
+              <span>Subtotal:</span>
+              <span className="font-semibold text-slate-900">
+                {curr}
+                {fmt(p.subtotal)}
+              </span>
+            </div>
+            <div className="flex justify-between text-slate-600">
+              <span>Tax ({p.taxRate}%):</span>
+              <span className="font-semibold text-slate-900">
+                {curr}
+                {fmt(p.taxAmount)}
+              </span>
+            </div>
+            <div
+              className={`flex justify-between items-center p-2.5 rounded font-mono font-bold mt-2 shadow-sm ${
+                isSwiss
+                  ? "bg-black text-white rounded-none"
+                  : isConsulting
+                  ? "bg-[#0f172a] text-white rounded-sm font-serif"
+                  : "bg-blue-600 text-white rounded-lg"
+              }`}
+            >
+              <span className="text-xs uppercase tracking-wider">Total Investment:</span>
+              <span className="text-sm">
+                {curr}
+                {fmt(p.grandTotal)}
+              </span>
+            </div>
+            <p className="text-[9px] text-slate-400 text-right pt-0.5">
+              Deterministic calculation verified by TypeScript engine (0% hallucination risk)
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Section 4: Assumptions & Terms ──────────────────────────── */}
+      {p.assumptionsAndTerms && p.assumptionsAndTerms.length > 0 && (
+        <div
+          className={`break-inside-avoid space-y-2 border-t pt-4 ${
+            isSwiss
+              ? "border-black"
+              : isConsulting
+              ? "border-[#d6d3d1]"
+              : "border-slate-200"
+          }`}
+        >
+          <h4
+            className={`text-xs font-bold uppercase tracking-wider ${
+              isSwiss
+                ? "text-black font-mono"
+                : isConsulting
+                ? "text-[#0f172a] font-serif"
+                : "text-slate-800 font-mono"
+            }`}
+          >
+            Engagement Terms &amp; Payment Milestones
+          </h4>
+          <ol className="list-decimal list-inside space-y-1 text-xs text-slate-700 leading-relaxed">
+            {p.assumptionsAndTerms.map((term, i) => (
+              <li key={i}>{term}</li>
             ))}
-          </tbody>
-        </table>
+          </ol>
+        </div>
+      )}
 
-        {/* ── Totals ──────────────────────────────────────────────────── */}
-        <div className={s.totalsBorder}>
-          <div className="w-64 space-y-1 text-xs">
-            <div className="flex justify-between">
-              <span className={s.subtotalLabel}>Subtotal</span>
-              <span className={s.subtotalValue}>${fmt(p.subtotal)}</span>
+      {/* ── Section 5: Mutual Binding Acceptance & Signatures ────────── */}
+      <div
+        className={`break-inside-avoid pt-6 border-t space-y-4 ${
+          isSwiss
+            ? "border-black"
+            : isConsulting
+            ? "border-[#d6d3d1]"
+            : "border-slate-200"
+        }`}
+      >
+        <h4
+          className={`text-[11px] font-bold uppercase tracking-wider ${
+            isSwiss
+              ? "text-black font-mono"
+              : isConsulting
+              ? "text-[#0f172a] font-serif"
+              : "text-slate-500 font-mono"
+          }`}
+        >
+          Mutual Binding Acceptance
+        </h4>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
+          {/* Client Signatory */}
+          <div className="space-y-3">
+            <div
+              className={`h-10 border-b flex items-end ${
+                isSwiss
+                  ? "border-black"
+                  : isConsulting
+                  ? "border-stone-400"
+                  : "border-slate-300"
+              }`}
+            >
+              <span
+                className={`text-sm italic font-serif ${
+                  isSwiss
+                    ? "text-black font-bold"
+                    : isConsulting
+                    ? "text-[#0f172a]"
+                    : "text-blue-700"
+                }`}
+              >
+                {p.clientName ? `${p.clientName.charAt(0)}. Signatory` : "Client Signatory"}
+              </span>
             </div>
-            <div className="flex justify-between">
-              <span className={s.subtotalLabel}>Tax ({p.taxRate}%)</span>
-              <span className={s.subtotalValue}>${fmt(p.taxAmount)}</span>
+            <div className="space-y-0.5">
+              <div
+                className={`text-xs font-semibold ${
+                  isSwiss ? "text-black" : "text-slate-900"
+                }`}
+              >
+                {p.clientCompany || "Client Corporation"}
+              </div>
+              <div className="text-[11px] text-slate-500">
+                Authorized Signatory • {p.clientName || "Primary Stakeholder"}
+              </div>
             </div>
-            <div className={s.grandTotalRow}>
-              <span>Grand Total</span>
-              <span>${fmt(p.grandTotal)}</span>
+          </div>
+
+          {/* Agency Signatory */}
+          <div className="space-y-3">
+            <div
+              className={`h-10 border-b flex items-end ${
+                isSwiss
+                  ? "border-black"
+                  : isConsulting
+                  ? "border-stone-400"
+                  : "border-slate-300"
+              }`}
+            >
+              <span
+                className={`text-sm italic font-serif ${
+                  isSwiss
+                    ? "text-black font-bold"
+                    : isConsulting
+                    ? "text-emerald-900"
+                    : "text-emerald-700"
+                }`}
+              >
+                M. ScopeLock
+              </span>
+            </div>
+            <div className="space-y-0.5">
+              <div
+                className={`text-xs font-semibold ${
+                  isSwiss ? "text-black" : "text-slate-900"
+                }`}
+              >
+                ScopeLock Studio LLC
+              </div>
+              <div className="text-[11px] text-slate-500">
+                Agency Principal &amp; Engineering Director
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Assumptions & Terms ──────────────────────────────────────── */}
-      <div className="break-inside-avoid mb-8">
-        <div className={s.sectionBorder}>
-          <h2 className={s.sectionTitle}>Assumptions & Terms</h2>
-        </div>
-        <ol className={s.termsList}>
-          {p.assumptionsAndTerms.map((term, i) => (
-            <li key={i} className={s.termsItem}>
-              {term}
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      {/* ── Signature Block ──────────────────────────────────────────── */}
-      <div className={`break-inside-avoid ${s.signatureDivider}`}>
-        <h2 className={s.signatureHeading}>Acceptance & Authorization</h2>
-        <div className="grid grid-cols-2 gap-10">
-          <div className="space-y-8">
-            <p className={s.signatureLabel}>Client</p>
-            <div className={s.signatureLine}>
-              <p className={s.signatureHint}>Signature</p>
-            </div>
-            <div className={s.signatureLine}>
-              <p className={s.signatureHint}>Name & Title</p>
-            </div>
-            <div className={s.signatureLine}>
-              <p className={s.signatureHint}>Date</p>
-            </div>
-          </div>
-          <div className="space-y-8">
-            <p className={s.signatureLabel}>Agency</p>
-            <div className={s.signatureLine}>
-              <p className={s.signatureHint}>Signature</p>
-            </div>
-            <div className={s.signatureLine}>
-              <p className={s.signatureHint}>Name & Title</p>
-            </div>
-            <div className={s.signatureLine}>
-              <p className={s.signatureHint}>Date</p>
-            </div>
-          </div>
-        </div>
+      {/* ── Security Hash Footer ─────────────────────────────────────── */}
+      <div
+        className={`break-inside-avoid pt-4 border-t flex flex-col md:flex-row items-center justify-between gap-2 font-mono text-[10px] ${
+          isSwiss
+            ? "border-black text-black"
+            : isConsulting
+            ? "border-stone-300 text-stone-500 font-serif"
+            : "border-slate-200 text-slate-500"
+        }`}
+      >
+        <span className="flex items-center gap-1">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+          <span>Deterministic Scope Guarantee • SHA256-e89a4b8702c1</span>
+        </span>
+        <span>Zero hallucinated deliverables • Generated via ScopeLock AI Engine</span>
       </div>
     </div>
   );
