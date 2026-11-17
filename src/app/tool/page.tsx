@@ -25,7 +25,6 @@ import {
 import ProposalPreview from "@/components/ProposalPreview";
 import { recomputeTotals } from "@/lib/math";
 import {
-  DEFAULT_PROPOSAL,
   SAMPLE_ACME_RATE_CARD,
   SAMPLE_ACME_TRANSCRIPT,
 } from "@/lib/sample-data";
@@ -34,9 +33,10 @@ import type { EnrichedProposal, EnrichedLineItem } from "@/types/proposal";
 
 export default function ToolPage() {
   // ── State ──────────────────────────────────────────────────────────
-  const [proposal, setProposal] = useState<EnrichedProposal | null>(DEFAULT_PROPOSAL);
-  const [transcript, setTranscript] = useState(SAMPLE_ACME_TRANSCRIPT);
-  const [rateCard, setRateCard] = useState(SAMPLE_ACME_RATE_CARD);
+  const [proposal, setProposal] = useState<EnrichedProposal | null>(null);
+  const [projectTitle, setProjectTitle] = useState("");
+  const [transcript, setTranscript] = useState("");
+  const [rateCard, setRateCard] = useState("");
   const [taxRate, setTaxRate] = useState(8.5);
   const [currency, setCurrency] = useState("USD");
   const [loading, setLoading] = useState(false);
@@ -52,11 +52,13 @@ export default function ToolPage() {
 
   // ── Project Title Sync ────────────────────────────────────────────
   const handleProjectTitleChange = (newTitle: string) => {
-    if (!proposal) return;
-    setProposal({
-      ...proposal,
-      projectTitle: newTitle,
-    });
+    setProjectTitle(newTitle);
+    if (proposal) {
+      setProposal({
+        ...proposal,
+        projectTitle: newTitle,
+      });
+    }
   };
 
   // ── Recalculate deterministic totals ──────────────────────────────
@@ -187,6 +189,9 @@ export default function ToolPage() {
       const data: EnrichedProposal = await res.json();
       data.currencySymbol = currencySymbol;
       setProposal(data);
+      if (data.projectTitle) {
+        setProjectTitle(data.projectTitle);
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Generation failed.");
     } finally {
@@ -206,24 +211,28 @@ export default function ToolPage() {
   // ── Reset Workspace ───────────────────────────────────────────────
   const resetWorkspace = () => {
     if (window.confirm("Reset workspace line items and inputs to initial defaults?")) {
-      setProposal(DEFAULT_PROPOSAL);
-      setTranscript(SAMPLE_ACME_TRANSCRIPT);
-      setRateCard(SAMPLE_ACME_RATE_CARD);
+      setProposal(null);
+      setProjectTitle("");
+      setTranscript("");
+      setRateCard("");
       setTaxRate(8.5);
       setCurrency("USD");
       setTheme("Minimalist Swiss (Black & White)");
       setDarkPreview(false);
       setZoom(1.0);
+      setError(null);
+      setNewExclusionInput("");
     }
   };
 
   // ── PDF Print Export ──────────────────────────────────────────────
   const exportPDF = () => {
+    if (!proposal) return;
     window.print();
   };
 
   // Document file name
-  const safeDocName = (proposal?.projectTitle || "Acme_Corp")
+  const safeDocName = (projectTitle || proposal?.projectTitle || "Draft")
     .replace(/[^a-zA-Z0-9]/g, "_")
     .substring(0, 24);
 
@@ -247,9 +256,9 @@ export default function ToolPage() {
             <FileEdit className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
             <input
               type="text"
-              value={proposal?.projectTitle || ""}
+              value={projectTitle || proposal?.projectTitle || ""}
               onChange={(e) => handleProjectTitleChange(e.target.value)}
-              placeholder="Click to edit project title..."
+              placeholder="Untitled Project Proposal"
               title="Click to edit project title"
               className="text-xs font-semibold text-slate-800 bg-slate-100 hover:bg-slate-200/70 focus:bg-white px-2.5 pl-8 py-1 rounded-md transition-all outline-none focus:ring-1 focus:ring-blue-500 w-64 md:w-96 truncate"
             />
@@ -362,9 +371,9 @@ export default function ToolPage() {
               <textarea
                 value={rateCard}
                 onChange={(e) => setRateCard(e.target.value)}
-                placeholder="Senior Full-Stack Engineering: $125/hr&#10;UI/UX Design System: $95/hr..."
+                placeholder="Paste your agency hourly or fixed rates here..."
                 rows={4}
-                className="w-full p-2.5 font-mono text-xs text-slate-800 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none leading-relaxed"
+                className="w-full p-2.5 font-mono text-xs text-slate-800 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none leading-relaxed placeholder:font-sans placeholder:text-slate-400"
               />
             </div>
 
@@ -386,9 +395,9 @@ export default function ToolPage() {
               <textarea
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
-                placeholder="Paste Zoom/Google Meet call transcript here..."
+                placeholder="Paste your raw discovery call transcript or meeting notes here..."
                 rows={5}
-                className="w-full p-2.5 text-xs text-slate-800 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none leading-relaxed"
+                className="w-full p-2.5 text-xs text-slate-800 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none leading-relaxed placeholder:text-slate-400"
               />
             </div>
 
@@ -427,7 +436,7 @@ export default function ToolPage() {
               </div>
             )}
 
-            {/* Section 3: Line Item Scope Controls (Live Tweak) */}
+            {/* Section 3: Line Item Scope Controls (Live Tweak) - Hidden until proposal exists */}
             {proposal && (
               <div className="border-t border-slate-200 pt-4 space-y-3.5">
                 <div className="flex items-center justify-between">
@@ -632,7 +641,7 @@ export default function ToolPage() {
               <FileText className="w-5 h-5 text-blue-600" />
               <div className="flex flex-col">
                 <span className="text-xs font-bold text-slate-900">
-                  Proposal_{safeDocName}_v1.pdf
+                  {proposal ? `Proposal_${safeDocName}_v1.pdf` : "Proposal_Draft.pdf"}
                 </span>
                 <div className="flex items-center gap-1.5 font-mono text-[10px] text-slate-500">
                   <span>A4 Document</span>
@@ -688,7 +697,12 @@ export default function ToolPage() {
               <button
                 type="button"
                 onClick={exportPDF}
-                className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
+                disabled={!proposal}
+                className={`px-3.5 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all ${
+                  proposal
+                    ? "bg-blue-600 hover:bg-blue-700 text-white active:scale-95 cursor-pointer"
+                    : "bg-slate-200 text-slate-400 cursor-not-allowed opacity-60"
+                }`}
               >
                 <Download className="w-4 h-4" />
                 <span>Download PDF</span>

@@ -2,7 +2,7 @@
 
 import type { EnrichedProposal } from "@/types/proposal";
 import type { ProposalTheme } from "@/types/themes";
-import { CheckCircle2, ShieldAlert, Calculator, Lock, ShieldCheck } from "lucide-react";
+import { CheckCircle2, ShieldAlert, Calculator, Lock, ShieldCheck, Sparkles } from "lucide-react";
 
 interface ProposalPreviewProps {
   proposal: EnrichedProposal | null;
@@ -28,14 +28,14 @@ export default function ProposalPreview({
 }: ProposalPreviewProps) {
   if (!proposal) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[500px] text-slate-400 text-sm">
-        <div className="text-center space-y-3">
-          <div className="text-5xl opacity-40">📄</div>
-          <p className="font-medium text-slate-500">Proposal preview will appear here</p>
-          <p className="text-xs text-slate-400 max-w-xs">
-            Paste a sales call transcript, configure your rate card, and click Generate to build your pixel-perfect proposal.
-          </p>
+      <div className="flex flex-col items-center justify-center min-h-115 p-8 text-center bg-white border border-dashed border-slate-300 rounded-xl max-w-md mx-auto my-auto shadow-xs">
+        <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-4 text-blue-600 shadow-xs">
+          <Sparkles className="w-7 h-7" />
         </div>
+        <h3 className="text-base font-bold text-slate-900 mb-1.5">Ready to Generate</h3>
+        <p className="text-xs text-slate-500 leading-relaxed max-w-xs">
+          Paste your rate card and discovery call transcript on the left, then click <strong className="text-slate-700">Generate Scope-Locked Proposal</strong>.
+        </p>
       </div>
     );
   }
